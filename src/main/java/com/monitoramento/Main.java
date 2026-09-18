@@ -1,17 +1,45 @@
 package com.monitoramento;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    static void main() {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        IO.println(String.format("Hello and welcome!"));
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OperatingSystem;
+import oshi.spi.SystemInfoFactory;
+import oshi.spi.SystemInfoProvider;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            IO.println("i = " + i);
-        }
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+public class Main {
+
+
+
+    static void main() {
+        SystemInfoProvider si = SystemInfoFactory.create();
+        HardwareAbstractionLayer hal = si.getHardware();
+        OperatingSystem os = si.getOperatingSystem();
+        CentralProcessor processor = hal.getProcessor();
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+        System.out.println("A maquina esta ligada a " + os.getSystemUptime()/60 + " minutos ");
+        System.out.println(processor);
+        System.out.println(processor.getPhysicalProcessorCount());
+
+
+
+        scheduler.scheduleAtFixedRate(()->{
+            long[] prevTick = processor.getSystemCpuLoadTicks();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            double cpuLoad = processor.getSystemCpuLoadBetweenTicks(prevTick) * 100;
+            System.out.println(cpuLoad);
+        },1,1, TimeUnit.SECONDS);
+
+
     }
+
 }
