@@ -1,32 +1,36 @@
 package com.monitoramento.hardwer;
 
+import com.monitoramento.model.CpuInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.software.os.OperatingSystem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class CpuMonitor {
 
-    private OperatingSystem os;
-    private CentralProcessor processor;
+    private final CentralProcessor processor;
     private long[] prevTick;
 
-    public CpuMonitor(OperatingSystem os,CentralProcessor processor) {
+    public CpuMonitor(CentralProcessor processor) {
         this.processor = processor;
-        this.os = os;
 
         prevTick = processor.getSystemCpuLoadTicks();
     }
 
 
-    String getNome(){
-        return processor.getProcessorIdentifier().getName();
-    }
+    public List<CpuInfo> GetCpuInfos(){
+        List<CpuInfo> resultado =new ArrayList<>();
 
-    double getCpuUsage() throws InterruptedException {
-
+        String nome = processor.getProcessorIdentifier().getName();
         double cpuLoad = processor.getSystemCpuLoadBetweenTicks(prevTick) * 100;
         prevTick = processor.getSystemCpuLoadTicks();
-        return cpuLoad;
+
+        CpuInfo info = new CpuInfo(nome,cpuLoad);
+
+        resultado.add(info);
+        return resultado;
     }
 
 }
