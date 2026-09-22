@@ -1,10 +1,9 @@
 package com.monitoramento.hardwer;
 
+import com.monitoramento.model.DiskInfo;
+import com.monitoramento.model.VolumeInfo;
 import oshi.hardware.HWDiskStore;
-import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OSFileStore;
-import oshi.software.os.OSProcess;
-import oshi.software.os.OperatingSystem;
 
 import java.util.ArrayList;
 import java.util.HashMap;

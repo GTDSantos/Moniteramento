@@ -1,9 +1,10 @@
 package com.monitoramento;
 
 import com.monitoramento.hardwer.DisckMonitor;
-import com.monitoramento.hardwer.DiskInfo;
-import com.monitoramento.hardwer.VolumeInfo;
-import oshi.SystemInfo;
+import com.monitoramento.hardwer.NetMonitor;
+import com.monitoramento.model.DiskInfo;
+import com.monitoramento.model.NetInfo;
+import com.monitoramento.model.VolumeInfo;
 import oshi.hardware.*;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
@@ -12,7 +13,6 @@ import oshi.software.os.OSFileStore;
 import oshi.spi.SystemInfoFactory;
 import oshi.spi.SystemInfoProvider;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,36 +35,10 @@ public class    Main {
         GlobalMemory memory = hal.getMemory();
         List<OSFileStore> listDisck = os.getFileSystem().getFileStores();
         List<HWDiskStore> hListDisck = hal.getDiskStores();
-
-        NetworkParams netParams = os.getNetworkParams();
-        List<NetworkIF> ListNet = hal.getNetworkIFs();
+        List<NetworkIF> hListNet = hal.getNetworkIFs();
 
 
-        System.out.println("-------------NET--------------");
-        Map<NetworkIF, Long> prevReceived = new HashMap<>();
-        Map<NetworkIF, Long> prevSent = new HashMap<>();
-        for (NetworkIF halNet : ListNet){
-            prevReceived.put(halNet,halNet.getBytesRecv());
-            prevSent.put(halNet, halNet.getBytesSent());
-        }
 
-        for (NetworkIF halNet : ListNet){
-            System.out.println("nome da rede : " + halNet.getName());
-            System.out.println("display da rede: " + halNet.getDisplayName());
-            System.out.println("MAC: " + halNet.getMacaddr());
-            for (String ip : halNet.getIPv4addr()){
-                System.out.println("IP: " + ip);
-            }
-            if (halNet.getIfOperStatus() == NetworkIF.IfOperStatus.UP){
-                System.out.println("Status: Ativo");
-            }else {
-                System.out.println("Status: inativo");
-            }
-
-            halNet.updateAttributes();
-            double receivad = (halNet.getBytesRecv() - prevReceived.get(halNet)) / (1024 * 1024);
-            double sent = (halNet.getBytesSent() - prevSent.get(halNet)) / (1024 * 1024);
-        }
         System.out.println("---------PROCESSOS------------");
 
         List<OSProcess> prevCpuProcess = os.getProcesses();
@@ -109,12 +83,26 @@ public class    Main {
 
 
 
-        scheduler.scheduleAtFixedRate(()-> {
+        /*scheduler.scheduleAtFixedRate(()-> {
             List<DiskInfo> diskI = disck.getDiskUsage();
             for (DiskInfo disk : diskI) {
                 System.out.println(disk.getModelo());
                 System.out.println(disk.getRead());
                 System.out.println(disk.getWrite());
+            }
+        },1,1,TimeUnit.SECONDS);*/
+
+        NetMonitor net = new NetMonitor(hListNet);
+
+        scheduler.scheduleAtFixedRate(() -> {
+            List<NetInfo> listNet = net.getNetInfo();
+            for (NetInfo lNet : listNet){
+                System.out.println(lNet.getDisplay());
+                System.out.println(lNet.getIp());
+                System.out.println(lNet.getRecv());
+                System.out.println(lNet.getSent());
+                System.out.println();
+                System.out.println();
             }
         },1,1,TimeUnit.SECONDS);
 

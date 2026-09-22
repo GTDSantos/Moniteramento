@@ -1,4 +1,4 @@
-package com.monitoramento.hardwer;
+package com.monitoramento.model;
 public class DiskInfo {
     private String modelo;
     private double read;

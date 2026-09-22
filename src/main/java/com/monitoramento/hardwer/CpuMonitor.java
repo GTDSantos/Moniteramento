@@ -8,12 +8,15 @@ public class CpuMonitor {
 
     private OperatingSystem os;
     private CentralProcessor processor;
-    private long[] prevTick = processor.getSystemCpuLoadTicks();
+    private long[] prevTick;
 
     public CpuMonitor(OperatingSystem os,CentralProcessor processor) {
         this.processor = processor;
         this.os = os;
+
+        prevTick = processor.getSystemCpuLoadTicks();
     }
+
 
     String getNome(){
         return processor.getProcessorIdentifier().getName();
@@ -22,11 +25,8 @@ public class CpuMonitor {
     double getCpuUsage() throws InterruptedException {
 
         double cpuLoad = processor.getSystemCpuLoadBetweenTicks(prevTick) * 100;
-        long[] prevTick = processor.getSystemCpuLoadTicks();
+        prevTick = processor.getSystemCpuLoadTicks();
         return cpuLoad;
-    }
-    long getTimeOn() {
-        return os.getSystemBootTime()/60;
     }
 
 }
