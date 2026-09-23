@@ -13,8 +13,7 @@ public class RamMonitor {
         this.memory = memory;
     }
 
-    public List<RamInfo> getRamInfo(){
-        List<RamInfo> resultado = new ArrayList<>();
+    public RamInfo getRamInfo(){
         long totalMemory = memory.getTotal()  / (1024 * 1024 * 1024);
         long diponivelMemory = memory.getAvailable()  / (1024 * 1024 * 1024);
         long usageMemory = (memory.getTotal() - memory.getAvailable()) / (1024 * 1024 * 1024);
@@ -22,8 +21,7 @@ public class RamMonitor {
 
         RamInfo info = new RamInfo(totalMemory,diponivelMemory,usageMemory,porcentMemory);
 
-        resultado.add(info);
-        return resultado;
+        return info;
     }
 
 

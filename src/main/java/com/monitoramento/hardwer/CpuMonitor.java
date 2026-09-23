@@ -20,17 +20,11 @@ public class CpuMonitor {
     }
 
 
-    public List<CpuInfo> GetCpuInfos(){
-        List<CpuInfo> resultado =new ArrayList<>();
-
+    public CpuInfo getCpuInfos() {
         String nome = processor.getProcessorIdentifier().getName();
         double cpuLoad = processor.getSystemCpuLoadBetweenTicks(prevTick) * 100;
         prevTick = processor.getSystemCpuLoadTicks();
-
-        CpuInfo info = new CpuInfo(nome,cpuLoad);
-
-        resultado.add(info);
-        return resultado;
+        return new CpuInfo(nome, cpuLoad);
     }
 
 }

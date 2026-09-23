@@ -1,6 +1,7 @@
 package com.monitoramento.hardwer;
 
 import com.monitoramento.model.NetInfo;
+import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 
 import java.util.ArrayList;
@@ -12,19 +13,20 @@ public class NetMonitor {
 
     Map<NetworkIF, Long> prevReceived = new HashMap<>();
     Map<NetworkIF, Long> prevSent = new HashMap<>();
-    List<NetworkIF> listNet;
+    private final HardwareAbstractionLayer hal;
 
 
 
 
 
-    public NetMonitor(List<NetworkIF> listNet ){
-        this.listNet = listNet;
+    public NetMonitor(HardwareAbstractionLayer hal){
+        this.hal = hal;
     }
 
     public List<NetInfo> getNetInfo() {
         List<NetInfo> resultado = new ArrayList<>();
 
+        List<NetworkIF> listNet = hal.getNetworkIFs();
         for (NetworkIF hNet : listNet){
             if (!prevReceived.containsKey(hNet)){
                 prevReceived.put(hNet, hNet.getBytesRecv());

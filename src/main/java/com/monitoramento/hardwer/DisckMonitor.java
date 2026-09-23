@@ -3,7 +3,9 @@ package com.monitoramento.hardwer;
 import com.monitoramento.model.DiskInfo;
 import com.monitoramento.model.VolumeInfo;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OSFileStore;
+import oshi.software.os.OperatingSystem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,22 +14,21 @@ import java.util.Map;
 
 public class DisckMonitor {
 
-    private List<OSFileStore> volumes;
-    private List<HWDiskStore> disks;
     private Map<HWDiskStore, Long> prevRead = new HashMap<>();
     private Map<HWDiskStore, Long> prevWrite = new HashMap<>();
+    private final OperatingSystem os;
+    private final HardwareAbstractionLayer hal;
 
 
-    public DisckMonitor( List<OSFileStore> volumes, List<HWDiskStore> disks){
-
-        this.volumes = volumes;
-        this.disks = disks;
+    public DisckMonitor( OperatingSystem os, HardwareAbstractionLayer hal){
+        this.hal = hal;
+        this.os = os;
     }
 
     public List<VolumeInfo> getVolume(){
 
         List<VolumeInfo> resultado = new ArrayList<>();
-
+        List<OSFileStore> volumes = os.getFileSystem().getFileStores();
         for (OSFileStore volume : volumes){
 
             String nome = volume.getName();
@@ -47,7 +48,7 @@ public class DisckMonitor {
         List<DiskInfo> resultado = new ArrayList<>();
 
 
-
+        List<HWDiskStore> disks = hal.getDiskStores();
         for (HWDiskStore hDisk : disks){
             if (!prevRead.containsKey(hDisk)){
                 prevRead.put(hDisk, hDisk.getReadBytes());
