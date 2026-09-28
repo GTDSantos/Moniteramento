@@ -1,5 +1,7 @@
 package com.monitoramento;
+import com.monitoramento.gui.MonitoramentoApp;
 import com.monitoramento.hardwer.Monitoramento;
+import javafx.stage.Stage;
 import oshi.hardware.*;
 import oshi.spi.SystemInfoFactory;
 import oshi.spi.SystemInfoProvider;
@@ -18,8 +20,9 @@ public class    Main {
 
         String nome = monitoramento.getCpu().getNome();
         long totaMemory = monitoramento.getRam().getTotaMemory();
-
-
+        Stage stage = new Stage();
+        MonitoramentoApp tela = new MonitoramentoApp();
+        tela.start(stage);
     }
 
 }
