@@ -1,107 +1,61 @@
-/* =========================
-   JANELA
-   ========================= */
-
 .root {
-    -fx-background-color: #111827;
-}
-
-
-/* =========================
-   MENU
-   ========================= */
-
-.menu {
-    -fx-background-color: #1f2937;
-    -fx-pref-width: 220px;
-}
-
-.logo {
-    -fx-text-fill: white;
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-padding: 0 0 30px 0;
-}
-
-.menu-item {
-    -fx-text-fill: #9ca3af;
-    -fx-font-size: 16px;
-    -fx-padding: 12px;
-
-}
-
-.menu-item:hover {
-    -fx-text-fill: white;
-    -fx-background-color: #374151;
-    -fx-background-radius: 10px;
-}
-
-
-/* =========================
-   TÍTULO
-   ========================= */
-
-.titulo {
-    -fx-text-fill: white;
-    -fx-font-size: 30px;
-    -fx-font-weight: bold;
-}
-
-.subtitulo {
-    -fx-text-fill: #9ca3af;
-    -fx-font-size: 15px;
-}
-
-
-/* =========================
-   CARDS
-   ========================= */
-
-.card {
-    -fx-background-color: #1f2937;
-    -fx-background-radius: 12px;
-    -fx-border-radius: 12px;
-}
-
-.card:hover {
-    -fx-background-color: #273449;
-}
-
-.card-titulo {
-    -fx-text-fill: #9ca3af;
+    -fx-background-color: #14171B;
+    -fx-font-family: "Bahnschrift", "Segoe UI", "Helvetica Neue", sans-serif;
     -fx-font-size: 14px;
-    -fx-font-weight: bold;
 }
+.label { -fx-text-fill: #E9EBE6; }
 
-.card-valor {
-    -fx-text-fill: white;
-    -fx-font-size: 28px;
-    -fx-font-weight: bold;
+/* menu lateral (direto sobre o fundo) */
+.menu { -fx-padding: 26 18 22 18; }
+.marca { -fx-background-color: #5B7CFA; -fx-background-radius: 6; }
+.logo { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F2F3EF; }
+.menu-item { -fx-text-fill: #8B948E; -fx-font-size: 15px; -fx-padding: 10 16 10 16; -fx-background-radius: 999; }
+.menu-item:hover { -fx-background-color: rgba(233, 235, 230, 0.06); }
+.menu-item.ativo, .menu-item.ativo:hover { -fx-background-color: #23272D; }
+.menu-item.ativo { -fx-text-fill: #F2F3EF; }
+.maquina { -fx-background-color: rgba(255, 255, 255, 0.04); -fx-background-radius: 16; -fx-padding: 12 14 12 14; }
+.maquina-nome { -fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #F2F3EF; }
+.maquina-info { -fx-font-size: 12px; -fx-text-fill: #8B948E; }
+.ponto { -fx-background-color: #4FBE8C; -fx-background-radius: 10; }
+.ponto-alerta { -fx-background-color: #F0654A; -fx-background-radius: 10; }
+
+/* folha principal */
+.folha {
+    -fx-background-color: #1B1F24;
+    -fx-background-radius: 28;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 32, 0, 0, 12);
 }
+.conteudo { -fx-padding: 30 38 26 38; }
+.titulo { -fx-font-size: 34px; -fx-font-weight: bold; -fx-text-fill: #F2F3EF; }
+.subtitulo { -fx-font-size: 15px; -fx-text-fill: #9AA39C; }
+.secao { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #9AA39C; }
 
-.card-descricao {
-    -fx-text-fill: #6b7280;
-    -fx-font-size: 13px;
-}
+/* estado e período */
+.status { -fx-background-color: rgba(79, 190, 140, 0.16); -fx-background-radius: 999; -fx-padding: 7 14 7 12; }
+.status-texto { -fx-font-size: 13px; -fx-text-fill: #6FDBA8; -fx-font-weight: bold; }
+.periodo-grupo { -fx-background-color: rgba(255, 255, 255, 0.05); -fx-background-radius: 999; -fx-padding: 3; }
+.periodo { -fx-padding: 5 14 5 14; -fx-font-size: 13px; -fx-background-radius: 999; -fx-text-fill: #9AA39C; }
+.periodo:hover { -fx-background-color: rgba(255, 255, 255, 0.05); }
+.periodo-ativo, .periodo-ativo:hover { -fx-background-color: #2C323A; -fx-text-fill: #F2F3EF; }
 
+/* medidores */
+.linha { -fx-padding: 12 0 12 0; -fx-border-color: #262B31; -fx-border-width: 0 0 1 0; }
+.linha-nome { -fx-font-size: 15px; -fx-text-fill: #E9EBE6; }
+.linha-valor { -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #F2F3EF; }
+.bloco-on { -fx-background-color: #5B7CFA; -fx-background-radius: 4; }
+.bloco-alerta { -fx-background-color: #F0654A; -fx-background-radius: 4; }
+.bloco-off { -fx-background-color: #262B31; -fx-background-radius: 4; }
 
-/* =========================
-   PROCESSOS
-   ========================= */
-
-.processos-box {
-    -fx-background-color: #1f2937;
-    -fx-background-radius: 12px;
-}
-
-.secao-titulo {
-    -fx-text-fill: white;
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-}
-
-.processo {
-    -fx-text-fill: #d1d5db;
-    -fx-font-size: 15px;
-    -fx-padding: 8px;
-}
+/* coluna direita */
+.aviso { -fx-background-color: rgba(240, 101, 74, 0.14); -fx-background-radius: 16; -fx-padding: 14 16 14 16; }
+.aviso-texto { -fx-font-size: 15px; -fx-text-fill: #F2D9D4; }
+.proc { -fx-padding: 8 0 8 0; -fx-border-color: #262B31; -fx-border-width: 0 0 1 0; }
+.proc-cab { -fx-font-size: 12px; -fx-text-fill: #8B948E; }
+.proc-nome { -fx-font-size: 14px; -fx-text-fill: #E9EBE6; }
+.proc-valor { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #F2F3EF; }
+.proc-icone { -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 9; -fx-text-fill: #14171B; }
+.ic-0 { -fx-background-color: #8FA3FF; }
+.ic-1 { -fx-background-color: #7FD9AE; }
+.ic-2 { -fx-background-color: #F0C878; }
+.ic-3 { -fx-background-color: #F0A092; }
+.nota { -fx-font-size: 14px; -fx-text-fill: #9AA39C; }
