@@ -14,15 +14,7 @@ public class    Main {
 
 
     static void main() {
-        SystemInfoProvider si = SystemInfoFactory.create();
-        Monitoramento monitoramento = new Monitoramento(si);
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-        String nome = monitoramento.getCpu().getNome();
-        long totaMemory = monitoramento.getRam().getTotaMemory();
-        Stage stage = new Stage();
-        MonitoramentoApp tela = new MonitoramentoApp();
-        tela.start(stage);
     }
 
 }

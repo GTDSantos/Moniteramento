@@ -34,8 +34,10 @@ public class DisckMonitor {
             String nome = volume.getName();
             long espaco = volume.getTotalSpace() / (1024 * 1024 * 1024);
             long espacoLivre = volume.getFreeSpace() / (1024 * 1024 * 1024);
+            long espacoUsado = espaco - espacoLivre;
+            double porcentagemUso = ((double) espacoUsado / espaco) * 100;
 
-            VolumeInfo info = new VolumeInfo(nome, espaco, espacoLivre);
+            VolumeInfo info = new VolumeInfo(nome, espaco, espacoLivre,porcentagemUso);
 
             resultado.add(info);
         }

@@ -1,5 +1,13 @@
 package com.monitoramento.gui;
 
+import com.monitoramento.hardwer.Monitoramento;
+import com.monitoramento.model.CpuInfo;
+import com.monitoramento.model.NetInfo;
+import com.monitoramento.model.RamInfo;
+import com.monitoramento.model.VolumeInfo;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,6 +25,12 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import oshi.SystemInfo;
+import oshi.spi.SystemInfoProvider;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Somente o visual. Todos os números são fixos (mock).
@@ -25,8 +39,15 @@ import javafx.stage.Stage;
  */
 public class MonitoramentoApp extends Application {
 
+    private Monitoramento monitoramento;
+
     @Override
     public void start(Stage stage) {
+        SystemInfoProvider si = new SystemInfo();
+        monitoramento = new Monitoramento(si);
+
+        CpuInfo cpu = monitoramento.getCpu();
+        System.out.println(cpu.getNome());
         VBox folha = conteudo();
         folha.getStyleClass().add("folha");
 
@@ -44,6 +65,14 @@ public class MonitoramentoApp extends Application {
         stage.setMinHeight(680);
         stage.setScene(scene);
         stage.show();
+        CpuInfo cpuInfo = monitoramento.getCpu();
+        timeline = new Timeline(
+                new KeyFrame(Duration.seconds(1), evento -> atualizarDados())
+        );
+
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+
     }
 
     // ---------- Menu lateral ----------
@@ -84,11 +113,124 @@ public class MonitoramentoApp extends Application {
         return r;
     }
 
+    private static class DiscoUI {
+        Label label;
+        HBox linha;
+
+        public DiscoUI(Label label, HBox linha) {
+            this.label = label;
+            this.linha = linha;
+        }
+    }
+
+
+    private Label cpuLabel;
+    private GraficoCpu graficoCpu;
+    private Timeline timeline;
+    private Label ramLabel;
+    private HBox ramLinha;
+    private List<DiscoUI> discosUI = new ArrayList<>();
+    private Label redeLabel;
+    private HBox redeLinha;
+
+    private void atualizarDados() {
+        CpuInfo cpu = monitoramento.getCpu();
+
+        cpuLabel.setText(
+                String.format("Uso atual da CPU: %.1f%%", cpu.getCpuLoad())
+        );
+        if (graficoCpu != null) {
+            graficoCpu.adicionarValor(cpu.getCpuLoad());
+        }
+
+        RamInfo ram = monitoramento.getRam();
+
+        ramLabel.setText(
+                String.format("%.1f de %.1f GB (%.1f%%)",
+                        ram.getUsageMemory(),
+                        ram.getTotaMemory(),
+                        ram.getPorctMemory())
+        );
+        atualizarBarra(ramLinha, (int) Math.round(ram.getPorctMemory()), false);
+
+        List<VolumeInfo> volumes = monitoramento.getDiskVolume();
+
+        for (int i = 0; i < volumes.size() && i < discosUI.size(); i++) {
+            VolumeInfo volume = volumes.get(i);
+            DiscoUI disco = discosUI.get(i);
+
+            double usado = volume.getTotal() - volume.getLivre();
+            double total = volume.getTotal();
+            double porcentagem = volume.getPorctVolume();
+
+            disco.label.setText(
+                    String.format("%.1f de %.1f GB (%.1f%%)",
+                            usado, total, porcentagem)
+            );
+
+            atualizarBarra(
+                    disco.linha,
+                    (int) Math.round(porcentagem),
+                    porcentagem >= 85
+            );
+        }
+
+        List<NetInfo> redes = monitoramento.getNet();
+
+        if (redes.isEmpty()) {
+            redeLabel.setText("Rede indisponível");
+            atualizarBarra(redeLinha, 0, false);
+        } else {
+            NetInfo rede = redes.get(0);
+            redeLabel.setText(
+                    String.format("↓ %.2f / ↑ %.2f MB/s",
+                            rede.getRecv(),
+                            rede.getSent())
+            );
+
+            // Referência visual de 10 MB/s para download + upload.
+            double trafego = rede.getRecv() + rede.getSent();
+            int porcentagemRede = (int) Math.min(100, trafego / 100.0 * 100);
+            atualizarBarra(redeLinha, porcentagemRede, porcentagemRede >= 90);
+        }
+
+
+    }
+
+    private void atualizarBarra(HBox linha, int pct, boolean alerta) {
+        HBox medidor = (HBox) linha.getChildren().get(1);
+
+        int porcentagem = Math.max(0, Math.min(100, pct));
+        int acesos = (int) Math.round(porcentagem / 5.0);
+
+        for (int i = 0; i < medidor.getChildren().size(); i++) {
+            Region bloco = (Region) medidor.getChildren().get(i);
+
+            bloco.getStyleClass().removeAll(
+                    "bloco-alerta", "bloco-on", "bloco-off"
+            );
+
+            bloco.getStyleClass().add(
+                    i < acesos
+                            ? (alerta ? "bloco-alerta" : "bloco-on")
+                            : "bloco-off"
+            );
+        }
+    }
+
+
+
     // ---------- Área principal ----------
     private VBox conteudo() {
-        Label sub = label("A CPU chegou a 71% às 14:32 e voltou a 38%. A memória está em 51%.", "subtitulo");
-        sub.setWrapText(true);
-        VBox cabecalho = new VBox(6, label("Tudo dentro do normal.", "titulo"), sub);
+
+        cpuLabel = label("Carregando uso da CPU...", "subtitulo");
+        cpuLabel.setWrapText(true);
+
+        VBox cabecalho = new VBox(
+                6,
+                label("Tudo dentro do normal.", "titulo"),
+                cpuLabel
+        );
         HBox.setHgrow(cabecalho, Priority.ALWAYS);
 
         HBox status = new HBox(8, ponto("ponto", 8), label("Saudável", "status-texto"));
@@ -103,11 +245,17 @@ public class MonitoramentoApp extends Application {
         HBox topo = new HBox(20, cabecalho, direita0);
         topo.setAlignment(Pos.TOP_LEFT);
 
-        GraficoCpu grafico = new GraficoCpu();
-        grafico.setMinHeight(220);
-        grafico.setPrefHeight(240);
+        graficoCpu = new GraficoCpu();
+        graficoCpu.setMinHeight(220);
+        graficoCpu.setPrefHeight(240);
 
-        VBox esquerda = new VBox(26, new VBox(12, label("Uso da CPU", "secao"), grafico), medidores());
+        VBox esquerda = new VBox(26,
+                new VBox(12,
+                        label("Uso da CPU", "secao"),
+                        graficoCpu
+                ),
+                medidores()
+        );
         HBox.setHgrow(esquerda, Priority.ALWAYS);
 
         VBox direita = colunaDireita();
@@ -126,43 +274,80 @@ public class MonitoramentoApp extends Application {
     }
 
     // ---------- Medidores em blocos ----------
+
     private VBox medidores() {
         VBox box = new VBox(2, label("Componentes", "secao"));
-        box.getChildren().addAll(
-                linha("Memória RAM", "8,2 de 16 GB", 51, false),
-                linha("Disco C:", "415 de 512 GB", 81, true),
-                linha("Leitura e escrita", "20 / 4 MB/s", 20, false),
-                linha("Rede", "baixa 5, sobe 1 MB/s", 25, false));
+
+        ramLabel = label("Carregando...", "linha-valor");
+        ramLinha = linha("Memória RAM", ramLabel, 0, false);
+        box.getChildren().add(ramLinha);
+
+        List<VolumeInfo> volumes = monitoramento.getDiskVolume();
+
+        discosUI.clear();
+
+        for (VolumeInfo volume : volumes) {
+            Label discoLabel = label("Carregando...", "linha-valor");
+
+            HBox discoLinha = linha(
+                    volume.getNome(),
+                    discoLabel,
+                    0,
+                    false
+            );
+
+            discosUI.add(new DiscoUI(discoLabel, discoLinha));
+            box.getChildren().add(discoLinha);
+        }
+
+        redeLabel = label("Carregando...", "linha-valor");
+
+        redeLinha = linha("Rede (↓ / ↑)", redeLabel, 0, false);
+
+        box.getChildren().add(redeLinha);
+
         return box;
     }
 
-    private HBox linha(String nome, String valor, int pct, boolean alerta) {
+
+
+    private HBox linha(String nome, Label valorLabel, int pct, boolean alerta) {
         Label n = label(nome, "linha-nome");
         n.setMinWidth(130);
 
         HBox medidor = new HBox(4);
         medidor.setAlignment(Pos.CENTER_LEFT);
+
         int acesos = (int) Math.round(pct / 5.0);
+
         for (int i = 0; i < 20; i++) {
             Region bloco = new Region();
             bloco.setPrefSize(10, 20);
             bloco.setMinWidth(4);
             bloco.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(bloco, Priority.ALWAYS);
-            bloco.getStyleClass().add(i < acesos ? (alerta ? "bloco-alerta" : "bloco-on") : "bloco-off");
+
+            bloco.getStyleClass().add(
+                    i < acesos
+                            ? (alerta ? "bloco-alerta" : "bloco-on")
+                            : "bloco-off"
+            );
+
             medidor.getChildren().add(bloco);
         }
+
         HBox.setHgrow(medidor, Priority.ALWAYS);
 
-        Label v = label(valor, "linha-valor");
-        v.setMinWidth(160);
-        v.setAlignment(Pos.CENTER_RIGHT);
+        valorLabel.setMinWidth(160);
+        valorLabel.setAlignment(Pos.CENTER_RIGHT);
 
-        HBox r = new HBox(18, n, medidor, v);
+        HBox r = new HBox(18, n, medidor, valorLabel);
         r.setAlignment(Pos.CENTER_LEFT);
         r.getStyleClass().add("linha");
+
         return r;
     }
+
 
     // ---------- Coluna da direita ----------
     private VBox colunaDireita() {
@@ -217,14 +402,40 @@ public class MonitoramentoApp extends Application {
     }
 
     // ---------- Gráfico da CPU (Canvas) ----------
+
     static class GraficoCpu extends Pane {
-        private static final double[] DATA = {22, 25, 24, 30, 28, 35, 33, 29, 41, 38, 44, 52, 47, 43,
-                39, 45, 58, 61, 55, 49, 71, 64, 52, 46, 41, 38, 36, 42, 40, 38};
-        private static final int PICO = 20;
+
+        private static final int MAX_PONTOS = 30;
+
+        private final List<Double> dados = new ArrayList<>();
         private final Canvas cv = new Canvas();
 
         GraficoCpu() {
             getChildren().add(cv);
+        }
+
+        public void adicionarValor(double valor) {
+
+            // Garante que o valor fique entre 0 e 100.
+            double uso = Double.isFinite(valor)
+                    ? Math.max(0, Math.min(100, valor))
+                    : 0;
+
+            // Inicializa o histórico com o primeiro valor real.
+            if (dados.isEmpty()) {
+                for (int i = 0; i < MAX_PONTOS; i++) {
+                    dados.add(uso);
+                }
+            } else {
+                dados.add(uso);
+            }
+
+            // Mantém somente as últimas 30 leituras.
+            while (dados.size() > MAX_PONTOS) {
+                dados.remove(0);
+            }
+
+            desenhar();
         }
 
         @Override
@@ -234,89 +445,145 @@ public class MonitoramentoApp extends Application {
             desenhar();
         }
 
-        // curva suave passando por todos os pontos
-        private static void curva(GraphicsContext g, double[] x, double[] y) {
-            int n = x.length;
-            for (int i = 0; i < n - 1; i++) {
-                int a = Math.max(i - 1, 0), d = Math.min(i + 2, n - 1);
-                g.bezierCurveTo(x[i] + (x[i + 1] - x[a]) / 6, y[i] + (y[i + 1] - y[a]) / 6,
-                        x[i + 1] - (x[d] - x[i]) / 6, y[i + 1] - (y[d] - y[i]) / 6,
-                        x[i + 1], y[i + 1]);
-            }
-        }
-
         private void desenhar() {
-            double w = cv.getWidth(), h = cv.getHeight();
-            if (w < 60 || h < 60) return;
+
+            double larguraTela = cv.getWidth();
+            double alturaTela = cv.getHeight();
+
+            if (larguraTela < 60 || alturaTela < 60) {
+                return;
+            }
+
             GraphicsContext g = cv.getGraphicsContext2D();
-            g.clearRect(0, 0, w, h);
 
-            Color cobalto = Color.web("#5B7CFA"), coral = Color.web("#F0654A");
-            Color tinta = Color.web("#F2F3EF"), suave = Color.web("#8B948E");
-            double esq = 42, largura = w - esq - 8, altura = h - 30, esc = altura - 14;
-            int n = DATA.length;
-            double[] xs = new double[n], ys = new double[n];
-            for (int i = 0; i < n; i++) {
-                xs[i] = esq + i * largura / (n - 1);
-                ys[i] = altura - esc * DATA[i] / 100;
-            }
+            g.clearRect(0, 0, larguraTela, alturaTela);
 
-            // grade pontilhada
-            g.setLineWidth(1);
+            double margemEsquerda = 42;
+            double margemDireita = 8;
+            double margemInferior = 30;
+
+            double largura = larguraTela
+                    - margemEsquerda - margemDireita;
+
+            double altura = alturaTela - margemInferior;
+            double escala = altura - 14;
+
+            // Desenha a grade de 0% até 100%.
             g.setStroke(Color.web("#262B31"));
+            g.setLineWidth(1);
             g.setLineDashes(2, 6);
+
             for (int v = 0; v <= 100; v += 25) {
-                double y = altura - esc * v / 100;
-                g.strokeLine(esq, y, w - 8, y);
+                double y = altura - escala * v / 100.0;
+
+                g.strokeLine(
+                        margemEsquerda, y,
+                        larguraTela - margemDireita, y
+                );
             }
+
             g.setLineDashes((double[]) null);
 
-            // área com degradê
-            g.setFill(new LinearGradient(0, 0, 0, altura, false, CycleMethod.NO_CYCLE,
-                    new Stop(0, Color.web("#5B7CFA", 0.32)), new Stop(1, Color.web("#5B7CFA", 0.0))));
+            // Exibe os valores do eixo vertical.
+            g.setFill(Color.web("#8B948E"));
+            g.setFont(Font.font("Bahnschrift", 12));
+
+            for (int v = 0; v <= 100; v += 25) {
+                double y = altura - escala * v / 100.0;
+
+                g.fillText(v + "%", 0, y + 4);
+            }
+
+            if (dados.size() < 2) {
+                return;
+            }
+
+            int n = dados.size();
+
+            double[] x = new double[n];
+            double[] y = new double[n];
+
+            // Converte cada percentual em uma posição no gráfico.
+            for (int i = 0; i < n; i++) {
+                x[i] = margemEsquerda
+                        + i * largura / (MAX_PONTOS - 1);
+
+                y[i] = altura - escala * dados.get(i) / 100.0;
+            }
+
+            // Preenche a área abaixo da linha.
+            g.setFill(Color.web("#5B7CFA", 0.20));
             g.beginPath();
-            g.moveTo(xs[0], altura);
-            g.lineTo(xs[0], ys[0]);
-            curva(g, xs, ys);
-            g.lineTo(xs[n - 1], altura);
+            g.moveTo(x[0], altura);
+            g.lineTo(x[0], y[0]);
+
+            for (int i = 1; i < n; i++) {
+                g.lineTo(x[i], y[i]);
+            }
+
+            g.lineTo(x[n - 1], altura);
             g.closePath();
             g.fill();
 
-            // linha
-            g.setStroke(cobalto);
+            // Desenha a linha com o uso real da CPU.
+            g.setStroke(Color.web("#5B7CFA"));
             g.setLineWidth(3);
             g.setLineCap(StrokeLineCap.ROUND);
             g.setLineJoin(StrokeLineJoin.ROUND);
-            g.beginPath();
-            g.moveTo(xs[0], ys[0]);
-            curva(g, xs, ys);
-            g.stroke();
 
-            // rótulos
-            g.setFill(suave);
-            g.setFont(Font.font("Bahnschrift", 12));
-            for (int v = 0; v <= 100; v += 25) g.fillText(v + "%", 0, altura - esc * v / 100 + 4);
-            String[] t = {"14:00", "14:15", "14:30", "14:45", "15:00"};
-            for (int k = 0; k < t.length; k++) {
-                double x = esq + largura * k / 4.0 - (k == 0 ? 0 : k == 4 ? 34 : 17);
-                g.fillText(t[k], x, h - 6);
+            g.beginPath();
+            g.moveTo(x[0], y[0]);
+
+            for (int i = 1; i < n; i++) {
+                g.lineTo(x[i], y[i]);
             }
 
-            // pico: ponto com halo e etiqueta
-            double px = xs[PICO], py = ys[PICO];
-            g.setFill(Color.web("#F0654A", 0.22));
-            g.fillOval(px - 11, py - 11, 22, 22);
-            g.setFill(Color.WHITE);
-            g.fillOval(px - 6.5, py - 6.5, 13, 13);
-            g.setFill(coral);
-            g.fillOval(px - 4.5, py - 4.5, 9, 9);
+            g.stroke();
 
-            double pw = 116, ph = 28, bx = px - pw / 2, by = py - ph - 16;
-            g.setFill(tinta);
-            g.fillRoundRect(bx, by, pw, ph, ph, ph);
+            // Marca o ponto da leitura mais recente.
+            double atualX = x[n - 1];
+            double atualY = y[n - 1];
+
+            g.setFill(Color.web("#F0654A", 0.25));
+            g.fillOval(atualX - 10, atualY - 10, 20, 20);
+
+            g.setFill(Color.WHITE);
+            g.fillOval(atualX - 5, atualY - 5, 10, 10);
+
+            // Mostra o percentual atual.
+            g.setFill(Color.web("#F2F3EF"));
+            g.fillRoundRect(
+                    Math.max(margemEsquerda, atualX - 100),
+                    Math.max(2, atualY - 38),
+                    100, 28, 12, 12
+            );
+
             g.setFill(Color.web("#14171B"));
-            g.setFont(Font.font("Bahnschrift", FontWeight.BOLD, 12));
-            g.fillText("71% às 14:32", bx + 20, by + 18);
+            g.setFont(Font.font(
+                    "Bahnschrift", FontWeight.BOLD, 12
+            ));
+
+            String texto = String.format(
+                    "%.1f%% agora", dados.get(n - 1)
+            );
+
+            g.fillText(
+                    texto,
+                    Math.max(margemEsquerda, atualX - 90),
+                    Math.max(20, atualY - 20)
+            );
+
+            // Indica aproximadamente o tempo do histórico.
+            g.setFill(Color.web("#8B948E"));
+            g.setFont(Font.font("Bahnschrift", 12));
+
+            g.fillText("-30 s", margemEsquerda, alturaTela - 6);
+            g.fillText("-20 s", margemEsquerda + largura / 3 - 17,
+                    alturaTela - 6);
+            g.fillText("-10 s", margemEsquerda + 2 * largura / 3 - 17,
+                    alturaTela - 6);
+            g.fillText("Agora", larguraTela - 43, alturaTela - 6);
         }
     }
+
 }
