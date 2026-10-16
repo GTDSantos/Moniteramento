@@ -1,7 +1,9 @@
+
 package com.monitoramento.hardwer;
 
 import com.monitoramento.model.DiskInfo;
 import com.monitoramento.model.VolumeInfo;
+
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OSFileStore;
@@ -14,30 +16,58 @@ import java.util.Map;
 
 public class DisckMonitor {
 
-    private Map<HWDiskStore, Long> prevRead = new HashMap<>();
-    private Map<HWDiskStore, Long> prevWrite = new HashMap<>();
+    private final Map<String, Long> prevRead = new HashMap<>();
+    private final Map<String, Long> prevWrite = new HashMap<>();
+    private final Map<String, Long> prevTime = new HashMap<>();
+
     private final OperatingSystem os;
     private final HardwareAbstractionLayer hal;
 
+    private static final double MB = 1024.0 * 1024.0;
+    private static final long GB = 1024L * 1024L * 1024L;
 
-    public DisckMonitor( OperatingSystem os, HardwareAbstractionLayer hal){
+    public DisckMonitor(
+            OperatingSystem os,
+            HardwareAbstractionLayer hal
+    ) {
         this.hal = hal;
         this.os = os;
     }
 
-    public List<VolumeInfo> getVolume(){
+    // Obtém os volumes lógicos, como C: e D:
+    public List<VolumeInfo> getVolume() {
 
         List<VolumeInfo> resultado = new ArrayList<>();
-        List<OSFileStore> volumes = os.getFileSystem().getFileStores();
-        for (OSFileStore volume : volumes){
+
+        List<OSFileStore> volumes =
+                os.getFileSystem().getFileStores();
+
+        for (OSFileStore volume : volumes) {
 
             String nome = volume.getName();
-            long espaco = volume.getTotalSpace() / (1024 * 1024 * 1024);
-            long espacoLivre = volume.getFreeSpace() / (1024 * 1024 * 1024);
-            long espacoUsado = espaco - espacoLivre;
-            double porcentagemUso = ((double) espacoUsado / espaco) * 100;
 
-            VolumeInfo info = new VolumeInfo(nome, espaco, espacoLivre,porcentagemUso);
+            long totalBytes = Math.max(0, volume.getTotalSpace());
+
+            long livreBytes = Math.max(
+                    0,
+                    Math.min(totalBytes, volume.getFreeSpace())
+            );
+
+            long usadoBytes = totalBytes - livreBytes;
+
+            long totalGB = totalBytes / GB;
+            long livreGB = livreBytes / GB;
+
+            double porcentagemUso = totalBytes > 0
+                    ? (double) usadoBytes / totalBytes * 100.0
+                    : 0.0;
+
+            VolumeInfo info = new VolumeInfo(
+                    nome,
+                    totalGB,
+                    livreGB,
+                    porcentagemUso
+            );
 
             resultado.add(info);
         }
@@ -45,43 +75,87 @@ public class DisckMonitor {
         return resultado;
     }
 
-    public List<DiskInfo> getDiskUsage(){
+    // Obtém a atividade dos discos físicos em MB/s
+    public List<DiskInfo> getDiskUsage() {
 
         List<DiskInfo> resultado = new ArrayList<>();
 
+        List<HWDiskStore> discos = hal.getDiskStores();
 
-        List<HWDiskStore> disks = hal.getDiskStores();
-        for (HWDiskStore hDisk : disks){
-            if (!prevRead.containsKey(hDisk)){
-                prevRead.put(hDisk, hDisk.getReadBytes());
+        for (int i = 0; i < discos.size(); i++) {
+
+            HWDiskStore disco = discos.get(i);
+
+            // Atualiza os contadores de leitura e escrita.
+            disco.updateAttributes();
+
+            String chave = disco.getName();
+
+            if (chave == null || chave.isBlank()) {
+                chave = "disco-" + i + "-" + disco.getModel();
             }
-            if (!prevWrite.containsKey(hDisk)){
-                prevWrite.put(hDisk, hDisk.getWriteBytes());
+
+            long leituraAtual = disco.getReadBytes();
+            long escritaAtual = disco.getWriteBytes();
+            long agora = System.nanoTime();
+
+            double leituraMBs = 0;
+            double escritaMBs = 0;
+
+            // Confere se já existe uma medição anterior.
+            if (prevRead.containsKey(chave)
+                    && prevWrite.containsKey(chave)
+                    && prevTime.containsKey(chave)) {
+
+                long intervaloNanos = agora - prevTime.get(chave);
+
+                if (intervaloNanos > 0) {
+
+                    double intervaloSegundos =
+                            intervaloNanos / 1_000_000_000.0;
+
+                    long bytesLidos = Math.max(
+                            0,
+                            leituraAtual - prevRead.get(chave)
+                    );
+
+                    long bytesEscritos = Math.max(
+                            0,
+                            escritaAtual - prevWrite.get(chave)
+                    );
+
+                    leituraMBs =
+                            bytesLidos / MB / intervaloSegundos;
+
+                    escritaMBs =
+                            bytesEscritos / MB / intervaloSegundos;
+                }
             }
-        }
 
-        for (HWDiskStore hwdDisck : disks){
+            // Guarda os contadores para a próxima medição.
+            prevRead.put(chave, leituraAtual);
+            prevWrite.put(chave, escritaAtual);
+            prevTime.put(chave, agora);
 
-            String modelo = hwdDisck.getModel();
+            String modelo = disco.getModel();
 
-            hwdDisck.updateAttributes();
-            long useReding = (hwdDisck.getReadBytes() - prevRead.get(hwdDisck));
-            long useWrite = (hwdDisck.getWriteBytes() - prevWrite.get(hwdDisck));
-            prevRead.replace(hwdDisck, hwdDisck.getReadBytes());
-            prevWrite.replace(hwdDisck, hwdDisck.getWriteBytes());
+            if (modelo == null || modelo.isBlank()) {
+                modelo = disco.getName();
+            }
 
-            double porcReding = useReding / (1024.0 * 1024.0);
-            double porcWrite = useWrite / (1024.0 * 1024.0);
+            if (modelo == null || modelo.isBlank()) {
+                modelo = "Disco físico " + (i + 1);
+            }
 
-            DiskInfo info = new DiskInfo(modelo,porcReding,porcWrite);
+            DiskInfo info = new DiskInfo(
+                    modelo,
+                    leituraMBs,
+                    escritaMBs
+            );
 
             resultado.add(info);
-
         }
 
         return resultado;
     }
-
-
-
 }

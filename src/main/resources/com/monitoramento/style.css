@@ -94,3 +94,620 @@
 .ic-2 { -fx-background-color: #F0C878; }
 .ic-3 { -fx-background-color: #F0A092; }
 .nota { -fx-font-size: 14px; -fx-text-fill: #9AA39C; }
+
+/* ---------- Tela completa de processos ---------- */
+
+.processos-pagina {
+    -fx-padding: 30 38 26 38;
+}
+
+.processos-stat-card {
+    -fx-background-color: #22272D;
+    -fx-background-radius: 16;
+    -fx-border-color: #2B3138;
+    -fx-border-radius: 16;
+    -fx-padding: 18 20 18 20;
+    -fx-min-height: 90;
+}
+
+.processos-stat-titulo {
+    -fx-font-size: 13px;
+    -fx-text-fill: #9AA39C;
+}
+
+.processos-stat-valor {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F2F3EF;
+}
+
+.processos-pesquisa {
+    -fx-background-color: #23272D;
+    -fx-background-radius: 10;
+    -fx-border-color: #343A40;
+    -fx-border-radius: 10;
+    -fx-padding: 10 14 10 14;
+    -fx-font-size: 13px;
+    -fx-text-fill: #F2F3EF;
+    -fx-prompt-text-fill: #8B948E;
+}
+
+.processos-pesquisa:focused {
+    -fx-border-color: #5B7CFA;
+}
+
+/* Tabela de processos */
+
+.processos-tabela {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: #1B1F24;
+    -fx-control-inner-background-alt: #20242A;
+    -fx-table-cell-border-color: #262B31;
+    -fx-table-header-border-color: #262B31;
+    -fx-padding: 0;
+}
+
+.processos-tabela .column-header-background,
+.processos-tabela .filler {
+    -fx-background-color: #23272D;
+}
+
+.processos-tabela .column-header {
+    -fx-background-color: #23272D;
+    -fx-size: 44px;
+    -fx-border-color: transparent transparent #343A40 transparent;
+}
+
+.processos-tabela .column-header .label {
+    -fx-text-fill: #9AA39C;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 12 0 12;
+}
+
+.processos-tabela .table-row-cell {
+    -fx-background-color: #1B1F24;
+    -fx-border-color: transparent transparent #262B31 transparent;
+    -fx-cell-size: 46px;
+}
+
+.processos-tabela .table-row-cell:odd {
+    -fx-background-color: #20242A;
+}
+
+.processos-tabela .table-row-cell:selected {
+    -fx-background-color: #303A55;
+}
+
+.processos-tabela .table-cell {
+    -fx-text-fill: #E9EBE6;
+    -fx-font-size: 14px;
+    -fx-padding: 8 14 8 14;
+}
+
+.processos-tabela .placeholder .label {
+    -fx-text-fill: #9AA39C;
+    -fx-font-size: 14px;
+}
+
+/* Barra de rolagem da tabela */
+.table-view .scroll-bar:vertical,
+.table-view .scroll-bar:horizontal {
+    -fx-background-color: #1b1f24;
+    -fx-background-radius: 5px;
+}
+
+/* Largura da barra vertical */
+.table-view .scroll-bar:vertical {
+    -fx-pref-width: 9px;
+}
+
+/* Altura da barra horizontal */
+.table-view .scroll-bar:horizontal {
+    -fx-pref-height: 9px;
+}
+
+/* Fundo por onde a barra desliza */
+.table-view .scroll-bar .track {
+    -fx-background-color: #171a1f;
+    -fx-background-radius: 5px;
+}
+
+/* Parte que você arrasta */
+.table-view .scroll-bar .thumb {
+    -fx-background-color: #30363e;
+    -fx-background-radius: 5px;
+    -fx-background-insets: 1px;
+}
+
+/* Ao passar o mouse */
+.table-view .scroll-bar .thumb:hover {
+    -fx-background-color: #414954;
+}
+
+/* Enquanto arrasta */
+.table-view .scroll-bar .thumb:pressed {
+    -fx-background-color: #505966;
+}
+
+/* Remover os botões das extremidades */
+.table-view .scroll-bar .increment-button,
+.table-view .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.table-view .scroll-bar .increment-arrow,
+.table-view .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+
+/* ===== Página de discos ===== */
+
+.discos-pagina {
+    -fx-background-color: #1b1f24;
+}
+
+.discos-titulo {
+    -fx-text-fill: #f1f5f9;
+    -fx-font-size: 25px;
+    -fx-font-weight: bold;
+}
+
+.discos-subtitulo {
+    -fx-text-fill: #929baa;
+    -fx-font-size: 13px;
+}
+
+.discos-secao-titulo {
+    -fx-text-fill: #e2e8f0;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.discos-resumo-card {
+    -fx-background-color: #22262d;
+    -fx-background-radius: 10px;
+    -fx-border-color: #2d333c;
+    -fx-border-radius: 10px;
+    -fx-padding: 18px;
+}
+
+.discos-resumo-titulo {
+    -fx-text-fill: #929baa;
+    -fx-font-size: 12px;
+}
+
+.discos-resumo-valor {
+    -fx-text-fill: #f1f5f9;
+    -fx-font-size: 21px;
+    -fx-font-weight: bold;
+}
+
+.discos-card {
+    -fx-background-color: #22262d;
+    -fx-background-radius: 10px;
+    -fx-border-color: #2d333c;
+    -fx-border-radius: 10px;
+    -fx-padding: 18px;
+}
+
+.discos-card-nome {
+    -fx-text-fill: #f1f5f9;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.discos-card-percentual {
+    -fx-text-fill: #a7b0bf;
+    -fx-font-size: 12px;
+}
+
+.discos-info {
+    -fx-text-fill: #a7b0bf;
+    -fx-font-size: 12px;
+}
+
+/* Barra de utilização */
+.discos-barra {
+    -fx-pref-height: 9px;
+    -fx-background-color: transparent;
+    -fx-accent: #7188b5;
+}
+
+.discos-barra > .track {
+    -fx-background-color: #171a1f;
+    -fx-background-radius: 5px;
+}
+
+.discos-barra > .bar {
+    -fx-background-color: #7188b5;
+    -fx-background-radius: 5px;
+    -fx-background-insets: 0;
+}
+
+.discos-barra-alerta {
+    -fx-accent: #e06c75;
+}
+
+.discos-barra-alerta > .bar {
+    -fx-background-color: #e06c75;
+}
+
+.discos-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.discos-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.discos-scroll > .scroll-bar:vertical {
+    -fx-pref-width: 9px;
+    -fx-background-color: #1b1f24;
+}
+
+.discos-scroll > .scroll-bar:vertical .thumb {
+    -fx-background-color: #30363e;
+    -fx-background-radius: 5px;
+}
+
+.discos-scroll > .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #414954;
+}
+
+/* ===== Página de discos ===== */
+
+.discos-pagina {
+    -fx-background-color: #1b1f24;
+}
+
+.discos-titulo {
+    -fx-text-fill: #f1f5f9;
+    -fx-font-size: 25px;
+    -fx-font-weight: bold;
+}
+
+.discos-subtitulo {
+    -fx-text-fill: #929baa;
+    -fx-font-size: 12px;
+}
+
+.discos-secao-titulo {
+    -fx-text-fill: #e2e8f0;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.discos-resumo-card {
+    -fx-background-color: #22262d;
+    -fx-background-radius: 10px;
+    -fx-border-color: #30363e;
+    -fx-border-radius: 10px;
+    -fx-padding: 16px;
+    -fx-pref-width: 170px;
+}
+
+.discos-resumo-titulo {
+    -fx-text-fill: #929baa;
+    -fx-font-size: 11px;
+}
+
+.discos-resumo-valor {
+    -fx-text-fill: #f1f5f9;
+    -fx-font-size: 19px;
+    -fx-font-weight: bold;
+}
+
+.discos-card {
+    -fx-background-color: #22262d;
+    -fx-background-radius: 10px;
+    -fx-border-color: #30363e;
+    -fx-border-radius: 10px;
+    -fx-padding: 18px;
+}
+
+.discos-card-nome {
+    -fx-text-fill: #f1f5f9;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.discos-card-percentual {
+    -fx-text-fill: #a7b0bf;
+    -fx-font-size: 11px;
+}
+
+.discos-info {
+    -fx-text-fill: #a7b0bf;
+    -fx-font-size: 11px;
+}
+
+.discos-status-normal {
+    -fx-text-fill: #8bc9a4;
+    -fx-background-color: #23372d;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 8px;
+    -fx-font-size: 10px;
+}
+
+.discos-status-atencao {
+    -fx-text-fill: #e7c47c;
+    -fx-background-color: #3c3322;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 8px;
+    -fx-font-size: 10px;
+}
+
+.discos-status-critico {
+    -fx-text-fill: #f08b91;
+    -fx-background-color: #40272b;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 8px;
+    -fx-font-size: 10px;
+}
+
+.discos-barra {
+    -fx-pref-height: 9px;
+    -fx-background-color: transparent;
+    -fx-accent: #7188b5;
+}
+
+.discos-barra > .track {
+    -fx-background-color: #171a1f;
+    -fx-background-radius: 5px;
+}
+
+.discos-barra > .bar {
+    -fx-background-color: #7188b5;
+    -fx-background-radius: 5px;
+    -fx-background-insets: 0;
+}
+
+.discos-barra-alerta {
+    -fx-accent: #e06c75;
+}
+
+.discos-barra-alerta > .bar {
+    -fx-background-color: #e06c75;
+}
+
+.discos-metrica {
+    -fx-background-color: #1b1f24;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px;
+    -fx-pref-width: 180px;
+    -fx-max-width: infinity;
+}
+
+.discos-metrica-titulo {
+    -fx-text-fill: #929baa;
+    -fx-font-size: 11px;
+}
+
+.discos-metrica-valor {
+    -fx-text-fill: #e2e8f0;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.discos-atividade-total {
+    -fx-text-fill: #a7b0bf;
+    -fx-font-size: 11px;
+}
+
+.discos-atividade {
+    -fx-text-fill: #929baa;
+    -fx-font-size: 11px;
+}
+
+.discos-vazio {
+    -fx-text-fill: #929baa;
+    -fx-padding: 16px;
+    -fx-background-color: #22262d;
+    -fx-background-radius: 8px;
+}
+
+.discos-scroll {
+    -fx-background-color: transparent;
+    -fx-background: #1b1f24;
+    -fx-border-color: transparent;
+}
+
+.discos-scroll > .viewport {
+    -fx-background-color: #1b1f24;
+}
+
+.discos-scroll > .scroll-bar:vertical {
+    -fx-pref-width: 9px;
+    -fx-background-color: #1b1f24;
+}
+
+.discos-scroll > .scroll-bar:vertical .track {
+    -fx-background-color: #171a1f;
+}
+
+.discos-scroll > .scroll-bar:vertical .thumb {
+    -fx-background-color: #30363e;
+    -fx-background-radius: 5px;
+}
+
+.discos-scroll > .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #414954;
+}
+
+.discos-scroll > .scroll-bar .increment-button,
+.discos-scroll > .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* ===== Página de rede ===== */
+
+.rede-pagina {
+    -fx-background-color: #1B1F24;
+    -fx-background-radius: 28px;
+}
+
+.rede-titulo {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F2F3EF;
+}
+
+.rede-subtitulo {
+    -fx-font-size: 12px;
+    -fx-text-fill: #9AA39C;
+}
+
+.rede-secao-titulo {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F2F3EF;
+}
+
+.rede-resumo-cartao {
+    -fx-background-color: #23272D;
+    -fx-background-radius: 12px;
+    -fx-border-color: #2D333A;
+    -fx-border-radius: 12px;
+    -fx-padding: 16px;
+}
+
+.rede-resumo-titulo {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9AA39C;
+}
+
+.rede-resumo-valor {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F2F3EF;
+}
+
+.rede-resumo-valor.rede-verde {
+    -fx-text-fill: #4FBE8C;
+}
+
+.rede-resumo-valor.rede-azul {
+    -fx-text-fill: #8FA3FF;
+}
+
+.rede-resumo-valor.rede-claro {
+    -fx-text-fill: #F2F3EF;
+}
+
+.rede-resumo-valor.rede-estado {
+    -fx-text-fill: #4FBE8C;
+}
+
+.rede-resumo-valor.rede-estado.rede-estado-inativo {
+    -fx-text-fill: #F0654A;
+}
+
+.rede-resumo-valor.rede-estado.rede-estado-ativo {
+    -fx-text-fill: #4FBE8C;
+}
+
+.rede-secao {
+    -fx-spacing: 10px;
+}
+
+.rede-grafico-area {
+    -fx-background-color: #20252C;
+    -fx-background-radius: 12px;
+    -fx-border-color: #303740;
+    -fx-border-radius: 12px;
+    -fx-padding: 4px;
+}
+
+.rede-legenda-texto {
+    -fx-font-size: 11px;
+    -fx-text-fill: #B0B7C2;
+}
+
+.rede-legenda-download {
+    -fx-background-color: #4FBE8C;
+    -fx-background-radius: 4px;
+}
+
+.rede-legenda-upload {
+    -fx-background-color: #5B7CFA;
+    -fx-background-radius: 4px;
+}
+
+.rede-cartao-interface {
+    -fx-background-color: #23272D;
+    -fx-background-radius: 12px;
+    -fx-border-color: #2D333A;
+    -fx-border-radius: 12px;
+    -fx-padding: 18px;
+}
+
+.rede-detalhe-linha {
+    -fx-padding: 10px 0;
+    -fx-border-color: #30363E;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.rede-detalhe-titulo {
+    -fx-font-size: 12px;
+    -fx-text-fill: #9AA39C;
+}
+
+.rede-detalhe-valor {
+    -fx-font-size: 12px;
+    -fx-text-fill: #F2F3EF;
+}
+
+.rede-botao-copiar {
+    -fx-background-color: #303740;
+    -fx-text-fill: #F2F3EF;
+    -fx-background-radius: 6px;
+    -fx-padding: 6px 12px;
+    -fx-cursor: hand;
+}
+
+.rede-botao-copiar:hover {
+    -fx-background-color: #414954;
+}
+
+.rede-estado-ativo {
+    -fx-text-fill: #4FBE8C;
+}
+
+.rede-estado-inativo {
+    -fx-text-fill: #F0654A;
+}
+
+.rede-scroll {
+    -fx-background-color: transparent;
+    -fx-background: #1B1F24;
+    -fx-border-color: transparent;
+}
+
+.rede-scroll > .viewport {
+    -fx-background-color: #1B1F24;
+}
+
+.rede-scroll > .scroll-bar:vertical {
+    -fx-pref-width: 9px;
+    -fx-background-color: #1B1F24;
+}
+
+.rede-scroll > .scroll-bar:vertical .track {
+    -fx-background-color: #171A1F;
+}
+
+.rede-scroll > .scroll-bar:vertical .thumb {
+    -fx-background-color: #30363E;
+    -fx-background-radius: 5px;
+}
+
+.rede-scroll > .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #414954;
+}
