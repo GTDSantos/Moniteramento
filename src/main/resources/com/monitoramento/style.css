@@ -16,7 +16,10 @@
 .maquina { -fx-background-color: rgba(255, 255, 255, 0.04); -fx-background-radius: 16; -fx-padding: 12 14 12 14; }
 .maquina-nome { -fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #F2F3EF; }
 .maquina-info { -fx-font-size: 12px; -fx-text-fill: #8B948E; }
-.ponto { -fx-background-color: #4FBE8C; -fx-background-radius: 10; }
+.ponto {
+    -fx-background-color: #4FBE8C;
+    -fx-background-radius: 10;
+}
 .ponto-alerta { -fx-background-color: #F0654A; -fx-background-radius: 10; }
 
 /* folha principal */
@@ -31,12 +34,44 @@
 .secao { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #9AA39C; }
 
 /* estado e período */
-.status { -fx-background-color: rgba(79, 190, 140, 0.16); -fx-background-radius: 999; -fx-padding: 7 14 7 12; }
-.status-texto { -fx-font-size: 13px; -fx-text-fill: #6FDBA8; -fx-font-weight: bold; }
-.periodo-grupo { -fx-background-color: rgba(255, 255, 255, 0.05); -fx-background-radius: 999; -fx-padding: 3; }
-.periodo { -fx-padding: 5 14 5 14; -fx-font-size: 13px; -fx-background-radius: 999; -fx-text-fill: #9AA39C; }
-.periodo:hover { -fx-background-color: rgba(255, 255, 255, 0.05); }
-.periodo-ativo, .periodo-ativo:hover { -fx-background-color: #2C323A; -fx-text-fill: #F2F3EF; }
+.status {
+    -fx-background-color: rgba(79, 190, 140, 0.16);
+    -fx-background-radius: 999;
+    -fx-padding: 7 14 7 12;
+    /* Adicione esta linha para garantir que o círculo verde e o texto fiquem alinhados verticalmente */
+    -fx-alignment: center;
+}
+
+.status-texto {
+    -fx-font-size: 13px;
+    -fx-text-fill: #4FBE8C; /* ALTERADO: Verde correto idêntico ao da imagem */
+    -fx-font-weight: bold;
+}
+
+.periodo-grupo {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 999;
+    -fx-padding: 3;
+    /* Adicione esta linha para garantir o alinhamento dos botões internos */
+    -fx-alignment: center;
+}
+
+.periodo {
+    -fx-padding: 5 14 5 14;
+    -fx-font-size: 14px;
+    -fx-background-radius: 999;
+    -fx-text-fill: #9AA39C;
+}
+
+.periodo:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+}
+
+.periodo-ativo, .periodo-ativo:hover {
+    -fx-background-color: #24292E; /* ALTERADO: Tom de cinza escuro correto do botão "5 min" */
+    -fx-text-fill: #FFFFFF;        /* ALTERADO: Texto totalmente branco */
+}
+
 
 /* medidores */
 .linha { -fx-padding: 12 0 12 0; -fx-border-color: #262B31; -fx-border-width: 0 0 1 0; }
