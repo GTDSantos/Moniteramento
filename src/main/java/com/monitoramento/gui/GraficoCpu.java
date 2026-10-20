@@ -18,8 +18,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /** Gráfico histórico da CPU, incluindo a animação e o CSV. */
@@ -48,8 +51,8 @@ public class GraficoCpu extends Pane {
     private final List<PontoCpu> dados = new ArrayList<>();
     private final Canvas cv = new Canvas();
 
-    // O gráfico começa mostrando os últimos 5 minutos.
-    private long periodoMs = 5 * 60 * UM_SEGUNDO;
+    // O gráfico começa mostrando os últimos 30 segundos.
+    private long periodoMs = 30 * UM_SEGUNDO;
     // Dados usados para animar a passagem entre duas leituras.
     private static final long DURACAO_ANIMACAO = 900;
 
@@ -68,12 +71,17 @@ public class GraficoCpu extends Pane {
     );
 
     private BufferedWriter escritorHistorico;
+    private boolean historicoHabilitado;
+    private boolean historicoCarregado;
+    private int amostrasDesdeFlush;
+    private long ultimaLimpezaArquivo;
+    private long ultimaGravacaoCpuMs;
 
-    GraficoCpu() {
+    GraficoCpu(boolean historicoHabilitado) {
         getChildren().add(cv);
 
+        // Ler dados antigos é leve e não ativa a gravação.
         carregarHistorico();
-        abrirArquivoHistorico();
 
         // Atualiza apenas o desenho, aproximadamente 30 vezes por segundo.
         animacaoGrafico = new Timeline(
@@ -84,6 +92,29 @@ public class GraficoCpu extends Pane {
         );
 
         animacaoGrafico.setCycleCount(Animation.INDEFINITE);
+
+        if (historicoHabilitado) {
+            setHistoricoHabilitado(true);
+        }
+    }
+
+    /** Ativa ou pausa a gravação persistente, sem parar o gráfico ao vivo. */
+    void setHistoricoHabilitado(boolean habilitar) {
+        if (habilitar == historicoHabilitado) {
+            return;
+        }
+
+        if (!habilitar) {
+            historicoHabilitado = false;
+            fecharArquivoHistorico();
+            return;
+        }
+
+        if (abrirArquivoHistorico()) {
+            historicoHabilitado = true;
+        } else {
+            historicoHabilitado = false;
+        }
     }
 
     // Recebe o período escolhido nos botões.
@@ -99,6 +130,11 @@ public class GraficoCpu extends Pane {
 
     // Carrega do CSV as leituras das últimas 24 horas.
     private void carregarHistorico() {
+        if (historicoCarregado) {
+            return;
+        }
+        historicoCarregado = true;
+
         if (!Files.exists(arquivoHistorico)) {
             return;
         }
@@ -138,12 +174,15 @@ public class GraficoCpu extends Pane {
                             + e.getMessage()
             );
         }
+
+        dados.sort(Comparator.comparingLong(ponto -> ponto.instante));
     }
 
-    // Prepara o arquivo para receber novas leituras.
-    private void abrirArquivoHistorico() {
+    // Prepara o arquivo para receber novas leituras, somente se habilitado.
+    private boolean abrirArquivoHistorico() {
         try {
             Files.createDirectories(arquivoHistorico.getParent());
+            limparArquivoHistoricoAntigo(System.currentTimeMillis());
 
             boolean arquivoNovo =
                     !Files.exists(arquivoHistorico)
@@ -162,12 +201,84 @@ public class GraficoCpu extends Pane {
                 escritorHistorico.flush();
             }
 
+            return true;
+
         } catch (IOException e) {
             System.err.println(
                     "Erro ao abrir o histórico da CPU: "
                             + e.getMessage()
             );
+            fecharArquivoHistorico();
+            return false;
         }
+    }
+
+    // Mantém o arquivo da CPU limitado ao período que o gráfico consegue mostrar.
+    private void limparArquivoHistoricoAntigo(long agora) throws IOException {
+        if (!Files.exists(arquivoHistorico) || Files.size(arquivoHistorico) == 0) {
+            ultimaLimpezaArquivo = agora;
+            return;
+        }
+
+        long limite = agora - TEMPO_MAXIMO;
+        Path temporario = Files.createTempFile(
+                arquivoHistorico.getParent(), "historico-cpu-", ".tmp"
+        );
+        boolean concluido = false;
+
+        try (BufferedReader leitor = Files.newBufferedReader(
+                arquivoHistorico, StandardCharsets.UTF_8
+        ); BufferedWriter saida = Files.newBufferedWriter(
+                temporario, StandardCharsets.UTF_8,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING
+        )) {
+            leitor.readLine();
+            saida.write("timestamp_ms,uso_cpu");
+            saida.newLine();
+
+            String linha;
+            while ((linha = leitor.readLine()) != null) {
+                int separador = linha.indexOf(',');
+                if (separador <= 0) {
+                    continue;
+                }
+                try {
+                    long instante = Long.parseLong(
+                            linha.substring(0, separador)
+                    );
+                    if (instante >= limite && instante <= agora) {
+                        saida.write(linha);
+                        saida.newLine();
+                    }
+                } catch (NumberFormatException ignorado) {
+                    // Ignora linhas danificadas.
+                }
+            }
+
+            saida.flush();
+            concluido = true;
+
+        } finally {
+            if (concluido) {
+                try {
+                    Files.move(
+                            temporario, arquivoHistorico,
+                            StandardCopyOption.REPLACE_EXISTING,
+                            StandardCopyOption.ATOMIC_MOVE
+                    );
+                } catch (AtomicMoveNotSupportedException e) {
+                    Files.move(
+                            temporario, arquivoHistorico,
+                            StandardCopyOption.REPLACE_EXISTING
+                    );
+                }
+            } else {
+                Files.deleteIfExists(temporario);
+            }
+        }
+
+        ultimaLimpezaArquivo = agora;
     }
 
     // Recebe uma leitura da CPU a cada atualização do monitor.
@@ -195,36 +306,46 @@ public class GraficoCpu extends Pane {
         inicioAnimacao = agora;
 
 
-        if (!dados.isEmpty()) {
-            PontoCpu ultimo = dados.get(dados.size() - 1);
-
-            // Evita animar a partir de uma leitura antiga após reabrir o programa.
-            if (agora - ultimo.instante <= 2_000) {
-                valorAnterior = ultimo.uso;
-            }
-        }
-
-        // Define o início e o destino da animação.
-
-
         // 1. Guarda a leitura na memória.
         dados.add(new PontoCpu(agora, uso));
         // Reinicia a transição com a nova leitura.
         animacaoGrafico.stop();
         animacaoGrafico.playFromStart();
 
-        // 2. Grava a leitura no arquivo.
-        if (escritorHistorico != null) {
+        // 2. Grava no CSV apenas quando o usuário habilitou o histórico.
+        // O gráfico ao vivo continua recebendo valores a cada segundo, mas a
+        // persistência é limitada a uma amostra a cada 5 segundos.
+        if (historicoHabilitado
+                && escritorHistorico != null
+                && agora - ultimaGravacaoCpuMs >= 5_000L) {
             try {
-                escritorHistorico.write(agora + "," + uso);
-                escritorHistorico.newLine();
-                escritorHistorico.flush();
+                if (agora - ultimaLimpezaArquivo >= TEMPO_MAXIMO) {
+                    fecharArquivoHistorico();
+                    if (!abrirArquivoHistorico()) {
+                        historicoHabilitado = false;
+                    }
+                }
+
+                if (historicoHabilitado && escritorHistorico != null) {
+                    escritorHistorico.write(agora + "," + uso);
+                    escritorHistorico.newLine();
+                    amostrasDesdeFlush++;
+                    ultimaGravacaoCpuMs = agora;
+
+                    // Evita flush em todas as leituras; fecha/pausa também faz flush.
+                    if (amostrasDesdeFlush >= 5) {
+                        escritorHistorico.flush();
+                        amostrasDesdeFlush = 0;
+                    }
+                }
 
             } catch (IOException e) {
                 System.err.println(
                         "Erro ao salvar o histórico da CPU: "
                                 + e.getMessage()
                 );
+                historicoHabilitado = false;
+                fecharArquivoHistorico();
             }
         }
 
@@ -533,9 +654,7 @@ public class GraficoCpu extends Pane {
         );
     }
 
-    // Fecha o arquivo quando o aplicativo for encerrado.
-    void fecharHistorico() {
-        animacaoGrafico.stop();
+    private void fecharArquivoHistorico() {
         if (escritorHistorico == null) {
             return;
         }
@@ -543,15 +662,20 @@ public class GraficoCpu extends Pane {
         try {
             escritorHistorico.flush();
             escritorHistorico.close();
-
         } catch (IOException e) {
             System.err.println(
-                    "Erro ao fechar o histórico da CPU: "
-                            + e.getMessage()
+                    "Erro ao fechar o histórico da CPU: " + e.getMessage()
             );
-
         } finally {
             escritorHistorico = null;
+            amostrasDesdeFlush = 0;
         }
+    }
+
+    // Fecha recursos quando a aplicação é encerrada.
+    void fecharHistorico() {
+        animacaoGrafico.stop();
+        historicoHabilitado = false;
+        fecharArquivoHistorico();
     }
 }

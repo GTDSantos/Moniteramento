@@ -1,66 +1,75 @@
 package com.monitoramento.gui;
 
+import com.monitoramento.hardwer.Monitoramento;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/** Constrói o menu lateral da aplicação. */
-public final class MenuLateral {
+public final class MenuLateral extends VBox {
 
-    private MenuLateral() {
-    }
+    private final Monitoramento monitoramento;
+    private final Label computadorNome;
+    private final Label computadorTempo;
 
-    // Mantém compatibilidade com chamadas antigas.
-    public static VBox criar() {
-        return criar(aba -> {
-        });
-    }
+    public MenuLateral(
+            Consumer<String> aoSelecionar,
+            Monitoramento monitoramento
+    ) {
 
-    // Cria o menu e avisa qual opção foi selecionada.
-    public static VBox criar(Consumer<String> aoSelecionar) {
+        this.monitoramento = monitoramento;
+
+        setSpacing(30);
+        getStyleClass().add("menu");
+        setPrefWidth(214);
+        setMinWidth(214);
+
         VBox itens = new VBox(4);
 
         String[] nomes = {
-                "Dashboard", "Processos", "Discos", "Rede"
+                "Dashboard",
+                "Processos",
+                "Discos",
+                "Rede",
+                "Análises"
         };
 
         List<Label> botoes = new ArrayList<>();
 
-        for (int i = 0; i < nomes.length; i++) {
-            String nome = nomes[i];
+        for (String nome : nomes) {
 
-            Label l = label(nome, "menu-item");
-            l.setMaxWidth(Double.MAX_VALUE);
-            l.setCursor(Cursor.HAND);
+            Label item = label(nome, "menu-item");
 
-            if (i == 0) {
-                l.getStyleClass().add("ativo");
+            item.setMaxWidth(Double.MAX_VALUE);
+            item.setCursor(Cursor.HAND);
+
+            if (nome.equals("Dashboard")) {
+                item.getStyleClass().add("ativo");
             }
 
-            l.setOnMouseClicked(event -> {
-                // Remove o destaque das opções anteriores.
+            item.setOnMouseClicked(event -> {
+
                 for (Label botao : botoes) {
                     botao.getStyleClass().remove("ativo");
                 }
 
-                // Destaca a opção clicada.
-                l.getStyleClass().add("ativo");
+                item.getStyleClass().add("ativo");
 
-                // Avisa a janela para trocar de tela.
                 aoSelecionar.accept(nome);
             });
 
-            botoes.add(l);
-            itens.getChildren().add(l);
+            botoes.add(item);
+            itens.getChildren().add(item);
         }
-
-        Region espaco = new Region();
-        VBox.setVgrow(espaco, Priority.ALWAYS);
 
         HBox marca = new HBox(
                 10,
@@ -71,42 +80,98 @@ public final class MenuLateral {
         marca.setAlignment(Pos.CENTER_LEFT);
         marca.setPadding(new Insets(0, 0, 0, 10));
 
+        computadorNome = label(
+                monitoramento.getNomeComputador(),
+                "maquina-nome"
+        );
+
+        computadorTempo = label(
+                "Calculando tempo ligado...",
+                "maquina-info"
+        );
+
+        VBox detalhesComputador = new VBox(
+                2,
+                computadorNome,
+                computadorTempo
+        );
+
         HBox maquina = new HBox(
                 10,
                 ponto("ponto", 8),
-                new VBox(
-                        2,
-                        label("DESKTOP-01", "maquina-nome"),
-                        label("ligado há 3 dias e 4 h", "maquina-info")
-                )
+                detalhesComputador
         );
 
         maquina.setAlignment(Pos.CENTER_LEFT);
         maquina.getStyleClass().add("maquina");
 
-        VBox m = new VBox(30, marca, itens, espaco, maquina);
+        Region espaco = new Region();
+        VBox.setVgrow(espaco, Priority.ALWAYS);
 
-        m.getStyleClass().add("menu");
-        m.setPrefWidth(214);
-        m.setMinWidth(214);
+        getChildren().addAll(
+                marca,
+                itens,
+                espaco,
+                maquina
+        );
 
-        return m;
+        atualizarInformacoesMaquina();
     }
 
-    private static Region ponto(String classe, double tam) {
-        Region r = new Region();
-        r.setPrefSize(tam, tam);
-        r.setMinSize(tam, tam);
-        r.setMaxSize(tam, tam);
-        r.getStyleClass().add(classe);
+    // Atualiza o tempo ligado.
+    public void atualizarInformacoesMaquina() {
 
-        return r;
+        computadorTempo.setText(
+                "ligado há "
+                        + formatarTempo(
+                        monitoramento.getSystemUptimeSeconds()
+                )
+        );
+    }
+
+    private String formatarTempo(long totalSegundos) {
+
+        long segundos = Math.max(0, totalSegundos);
+
+        long dias = segundos / 86400;
+        long horas = (segundos % 86400) / 3600;
+        long minutos = (segundos % 3600) / 60;
+
+        if (dias > 0) {
+            return dias
+                    + (dias == 1 ? " dia e " : " dias e ")
+                    + horas + " h";
+        }
+
+        if (horas > 0) {
+            return horas + " h e " + minutos + " min";
+        }
+
+        if (minutos > 0) {
+            return minutos + " min";
+        }
+
+        return "menos de 1 min";
+    }
+
+    private static Region ponto(String classe, double tamanho) {
+
+        Region region = new Region();
+
+        region.setPrefSize(tamanho, tamanho);
+        region.setMinSize(tamanho, tamanho);
+        region.setMaxSize(tamanho, tamanho);
+
+        region.getStyleClass().add(classe);
+
+        return region;
     }
 
     private static Label label(String texto, String classe) {
-        Label l = new Label(texto);
-        l.getStyleClass().add(classe);
 
-        return l;
+        Label label = new Label(texto);
+        label.getStyleClass().add(classe);
+
+        return label;
     }
 }

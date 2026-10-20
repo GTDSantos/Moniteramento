@@ -1,20 +1,16 @@
 package com.monitoramento;
+
 import com.monitoramento.gui.MonitoramentoApp;
-import com.monitoramento.hardwer.Monitoramento;
-import javafx.stage.Stage;
-import oshi.hardware.*;
-import oshi.spi.SystemInfoFactory;
-import oshi.spi.SystemInfoProvider;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import javafx.application.Application;
 
+/** Ponto de entrada alternativo do PC Monitor. */
+public final class Main {
 
-public class    Main {
-
-
-
-    static void main() {
-
+    private Main() {
+        // Esta classe não precisa ser instanciada.
     }
 
+    public static void main(String[] args) {
+        Application.launch(MonitoramentoApp.class, args);
+    }
 }

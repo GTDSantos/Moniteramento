@@ -7,7 +7,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 import oshi.spi.SystemInfoProvider;
-
+import java.net.InetAddress;
 import java.util.List;
 
 public class Monitoramento {
@@ -17,15 +17,18 @@ public class Monitoramento {
     private NetMonitor netMonitor;
     private ProcessosMonitor processosMonitor;
     private RamMonitor ramMonitor;
-
+    private final OperatingSystem os;
     public Monitoramento(SystemInfoProvider si){
         HardwareAbstractionLayer hal = si.getHardware();
-        OperatingSystem os = si.getOperatingSystem();
+        this.os = si.getOperatingSystem();
 
         cpuMonitor = new CpuMonitor(hal.getProcessor());
-        disckMonitor = new DisckMonitor(os,hal);
+        disckMonitor = new DisckMonitor(this.os, hal);
         ramMonitor = new RamMonitor(hal.getMemory());
-        processosMonitor = new ProcessosMonitor(os, hal.getProcessor());
+        processosMonitor = new ProcessosMonitor(
+                this.os,
+                hal.getProcessor()
+        );
         netMonitor = new NetMonitor(hal);
     }
 
@@ -51,5 +54,43 @@ public class Monitoramento {
 
     public RamInfo getRam(){
         return ramMonitor.getRamInfo();
+    }
+    // Tempo, em segundos, desde a inicialização do sistema.
+    public long getSystemUptimeSeconds() {
+        return Math.max(0, os.getSystemUptime());
+    }
+
+    // Nome real do computador.
+    public String getNomeComputador() {
+
+        try {
+            String nome = os.getNetworkParams().getHostName();
+
+            if (nome != null && !nome.isBlank()) {
+                return nome;
+            }
+
+        } catch (Exception ignored) {
+            // Tenta as alternativas abaixo.
+        }
+
+        String nomeWindows = System.getenv("COMPUTERNAME");
+
+        if (nomeWindows != null && !nomeWindows.isBlank()) {
+            return nomeWindows;
+        }
+
+        try {
+            String nome = InetAddress.getLocalHost().getHostName();
+
+            if (nome != null && !nome.isBlank()) {
+                return nome;
+            }
+
+        } catch (Exception ignored) {
+            // Não foi possível encontrar o nome.
+        }
+
+        return "Meu computador";
     }
 }

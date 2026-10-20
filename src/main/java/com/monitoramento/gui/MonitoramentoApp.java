@@ -1,6 +1,7 @@
 package com.monitoramento.gui;
 
 import com.monitoramento.hardwer.Monitoramento;
+import com.monitoramento.historico.HistoricoMonitoramento;
 import com.monitoramento.model.CpuInfo;
 import com.monitoramento.model.NetInfo;
 import com.monitoramento.model.ProcesInfo;
@@ -20,38 +21,47 @@ import oshi.SystemInfo;
 import oshi.spi.SystemInfoProvider;
 
 import java.util.List;
-
+import java.net.InetAddress;
 /** Inicializa e controla as telas do PC Monitor. */
 public class MonitoramentoApp extends Application {
 
     private Monitoramento monitoramento;
+    private HistoricoMonitoramento historicoMonitoramento;
 
     private DashboardView dashboardView;
     private ProcessosPage processosPage;
     private RedePage redePage;
+    private AnalisesPage analisesPage;
     private Timeline timeline;
     private DiscosPage discosPage;
+    private MenuLateral menuLateral;
     @Override
     public void start(Stage stage) {
         SystemInfoProvider si = new SystemInfo();
 
         monitoramento = new Monitoramento(si);
+        historicoMonitoramento = new HistoricoMonitoramento(monitoramento);
         discosPage = new DiscosPage(monitoramento);
         CpuInfo cpu = monitoramento.getCpu();
         System.out.println(cpu.getNome());
         redePage = new RedePage();
         // Cria as telas.
-        dashboardView = new DashboardView(monitoramento);
+        dashboardView = new DashboardView(
+                monitoramento,
+                historicoMonitoramento
+        );
         processosPage = new ProcessosPage();
+        analisesPage = new AnalisesPage(historicoMonitoramento);
 
         BorderPane root = new BorderPane();
 
         // O menu avisa quando o usuário troca de aba.
-        root.setLeft(
-                MenuLateral.criar(
-                        aba -> selecionarAba(aba, root)
-                )
+        menuLateral = new MenuLateral(
+                aba -> selecionarAba(aba, root),
+                monitoramento
         );
+
+        root.setLeft(menuLateral);
 
         // A primeira tela é o Dashboard.
         Node paginaInicial = dashboardView.getView();
@@ -95,6 +105,7 @@ public class MonitoramentoApp extends Application {
                             processosPage.atualizarProcessos(processos);
 
                             redePage.atualizarRede(redes);
+                            menuLateral.atualizarInformacoesMaquina();
                         }
                 )
         );
@@ -116,6 +127,11 @@ public class MonitoramentoApp extends Application {
             }
 
             case "Rede" -> redePage;
+
+            case "Análises" -> {
+                analisesPage.atualizarAnalise();
+                yield analisesPage;
+            }
 
             default -> dashboardView.getView();
         };
@@ -153,6 +169,10 @@ public class MonitoramentoApp extends Application {
 
         if (dashboardView != null) {
             dashboardView.fecharHistorico();
+        }
+
+        if (historicoMonitoramento != null) {
+            historicoMonitoramento.fechar();
         }
     }
 }

@@ -711,3 +711,162 @@
 .rede-scroll > .scroll-bar:vertical .thumb:hover {
     -fx-background-color: #414954;
 }
+
+/* ===== Estados dinâmicos do Dashboard ===== */
+
+.titulo-alerta {
+    -fx-text-fill: #F0A092;
+}
+
+/* Aviso normal */
+.aviso.aviso-normal {
+    -fx-background-color: rgba(79, 190, 140, 0.12);
+    -fx-border-color: rgba(79, 190, 140, 0.20);
+    -fx-border-radius: 16;
+}
+
+/* Aviso de atenção */
+.aviso.aviso-atencao {
+    -fx-background-color: rgba(240, 200, 120, 0.13);
+    -fx-border-color: rgba(240, 200, 120, 0.22);
+    -fx-border-radius: 16;
+}
+
+/* Aviso crítico */
+.aviso.aviso-critico {
+    -fx-background-color: rgba(240, 101, 74, 0.16);
+    -fx-border-color: rgba(240, 101, 74, 0.30);
+    -fx-border-radius: 16;
+}
+
+.aviso-normal .aviso-texto {
+    -fx-text-fill: #BFE8D2;
+}
+
+.aviso-atencao .aviso-texto {
+    -fx-text-fill: #F0D9A6;
+}
+
+.aviso-critico .aviso-texto {
+    -fx-text-fill: #F2D9D4;
+}
+
+/* Indicador de saúde */
+.status.status-normal {
+    -fx-background-color: rgba(79, 190, 140, 0.16);
+}
+
+.status.status-atencao {
+    -fx-background-color: rgba(240, 200, 120, 0.16);
+}
+
+.status.status-critico {
+    -fx-background-color: rgba(240, 101, 74, 0.18);
+}
+
+.status-atencao .status-texto {
+    -fx-text-fill: #F0C878;
+}
+
+.status-critico .status-texto {
+    -fx-text-fill: #F0654A;
+}
+
+/* Indicador visual de atenção */
+.ponto-atencao {
+    -fx-background-color: #F0C878;
+    -fx-background-radius: 10;
+}
+/* ===== Histórico opcional do monitoramento ===== */
+.historico-checkbox {
+    -fx-text-fill: #D5DBE3;
+    -fx-font-size: 11px;
+    -fx-cursor: hand;
+}
+
+.historico-checkbox > .box {
+    -fx-background-color: #222831;
+    -fx-border-color: #46505D;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+.historico-checkbox:selected > .box {
+    -fx-background-color: #5B7CFA;
+    -fx-border-color: #5B7CFA;
+}
+
+.historico-checkbox:selected > .box > .mark {
+    -fx-background-color: #FFFFFF;
+}
+
+.historico-status {
+    -fx-font-size: 10px;
+    -fx-text-fill: #929BAA;
+}
+
+.historico-status-ativo {
+    -fx-text-fill: #80CDA6;
+}
+
+.historico-status-desativado {
+    -fx-text-fill: #929BAA;
+}
+
+/* ===== Análises históricas ===== */
+.analises-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+.analises-scroll > .viewport { -fx-background-color: transparent; }
+.analises-scroll > .scroll-bar:vertical { -fx-pref-width: 9px; -fx-background-color: transparent; }
+.analises-scroll > .scroll-bar:vertical .thumb { -fx-background-color: #30363E; -fx-background-radius: 8px; }
+.analises-pagina { -fx-background-color: #1B1F24; -fx-background-radius: 28px; }
+.analises-titulo { -fx-font-size: 29px; -fx-font-weight: bold; -fx-text-fill: #F2F3EF; }
+.analises-subtitulo { -fx-font-size: 13px; -fx-text-fill: #9AA39C; -fx-wrap-text: true; }
+.analises-secao { -fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #E9EBE6; -fx-padding: 4 0 0 0; }
+.analises-toolbar-card { -fx-background-color: #22272D; -fx-background-radius: 14px; -fx-border-color: #2D333B; -fx-border-radius: 14px; -fx-padding: 14px; }
+.analises-periodo-grupo { -fx-background-color: #171B20; -fx-background-radius: 10px; -fx-padding: 3px; }
+.analises-periodo { -fx-background-color: transparent; -fx-background-radius: 8px; -fx-text-fill: #A6AEB8; -fx-padding: 8 12 8 12; -fx-font-size: 12px; }
+.analises-periodo:hover { -fx-background-color: #2B313A; -fx-text-fill: #F2F3EF; }
+.analises-periodo-ativo, .analises-periodo-ativo:hover { -fx-background-color: #34446E; -fx-text-fill: #FFFFFF; -fx-font-weight: bold; }
+.analises-botao-secundario { -fx-background-color: #2B3138; -fx-background-radius: 9px; -fx-text-fill: #E5E9F0; -fx-padding: 9 13 9 13; -fx-cursor: hand; }
+.analises-botao-secundario:hover { -fx-background-color: #373F49; }
+.analises-botao-principal { -fx-background-color: #5B7CFA; -fx-background-radius: 9px; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 9 14 9 14; -fx-cursor: hand; }
+.analises-botao-principal:hover { -fx-background-color: #6C89FF; }
+.analises-botao-principal:disabled { -fx-opacity: 0.42; }
+.analises-nota { -fx-font-size: 11px; -fx-text-fill: #8F99A5; -fx-wrap-text: true; }
+.analises-status-box { -fx-background-color: #1B2026; -fx-background-radius: 8px; -fx-padding: 8 10 8 10; }
+.analises-status-ponto { -fx-background-color: #747E8B; -fx-background-radius: 10px; }
+.analises-status-ponto-ativo { -fx-background-color: #4FBE8C; }
+.analises-status-ponto-inativo { -fx-background-color: #E6BD72; }
+.analises-status-ativo { -fx-text-fill: #6DD6A6; -fx-font-size: 12px; }
+.analises-status-inativo { -fx-text-fill: #E6BD72; -fx-font-size: 12px; }
+.analises-indicadores { -fx-alignment: stretch; }
+.analises-indicador { -fx-background-color: #22272D; -fx-background-radius: 14px; -fx-border-color: #2D333B; -fx-border-radius: 14px; -fx-padding: 15 16 15 16; -fx-min-width: 150px; }
+.analises-card-azul { -fx-border-color: #35416A; }
+.analises-card-verde { -fx-border-color: #2E5345; }
+.analises-indicador-titulo { -fx-font-size: 12px; -fx-text-fill: #9AA3AE; }
+.analises-indicador-valor { -fx-font-size: 25px; -fx-font-weight: bold; -fx-text-fill: #F2F3EF; }
+.analises-indicador-detalhe { -fx-font-size: 10px; -fx-text-fill: #929BA6; -fx-wrap-text: true; }
+.analises-card { -fx-background-color: #22272D; -fx-background-radius: 15px; -fx-border-color: #2D333B; -fx-border-radius: 15px; -fx-padding: 18px; }
+.analises-card-titulo { -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #EEF0EB; }
+.analises-card-legenda { -fx-font-size: 11px; -fx-text-fill: #8F99A5; -fx-wrap-text: true; }
+.analises-hora-pico { -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #C9D2FF; -fx-padding: 2 0 0 0; -fx-wrap-text: true; }
+.analises-sem-dados { -fx-background-color: #242B34; -fx-background-radius: 12px; -fx-border-color: #4A5D8E; -fx-border-radius: 12px; -fx-padding: 14px 16px 14px 16px; -fx-font-size: 12px; -fx-text-fill: #D6DEFA; -fx-wrap-text: true; }
+.analises-alerta-item { -fx-background-color: #1B2026; -fx-background-radius: 10px; -fx-padding: 12px; }
+.analises-alerta-titulo { -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #EBEDF0; }
+.analises-alerta-descricao { -fx-font-size: 11px; -fx-text-fill: #A3ADB8; -fx-wrap-text: true; }
+.analises-alerta-ponto-alta { -fx-background-color: #F0654A; -fx-background-radius: 8px; -fx-margin: 3 0 0 0; }
+.analises-alerta-ponto-aviso { -fx-background-color: #E6BD72; -fx-background-radius: 8px; }
+.analises-alerta-ponto-ok { -fx-background-color: #4FBE8C; -fx-background-radius: 8px; }
+.analises-alerta-ponto-info { -fx-background-color: #8298FF; -fx-background-radius: 8px; }
+.analises-tabela { -fx-background-color: transparent; -fx-control-inner-background: #1B2026; -fx-control-inner-background-alt: #20262D; -fx-table-cell-border-color: #2A3038; -fx-table-header-border-color: #2A3038; }
+.analises-tabela .column-header-background, .analises-tabela .filler { -fx-background-color: #252B32; }
+.analises-tabela .column-header { -fx-background-color: #252B32; -fx-size: 38px; -fx-border-color: transparent transparent #30363E transparent; }
+.analises-tabela .column-header .label { -fx-text-fill: #9AA3AE; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 0 8 0 8; }
+.analises-tabela .table-row-cell { -fx-background-color: #1B2026; -fx-border-color: transparent transparent #282E36 transparent; -fx-cell-size: 38px; }
+.analises-tabela .table-row-cell:odd { -fx-background-color: #20262D; }
+.analises-tabela .table-cell { -fx-text-fill: #E5E9EE; -fx-font-size: 11px; -fx-padding: 7 9 7 9; }
+.analises-tabela .placeholder .label { -fx-text-fill: #8F99A5; -fx-font-size: 12px; }
